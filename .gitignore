@@ -1,0 +1,9 @@
+**/*.egg-info
+**/__pycache__/
+.env
+.ruff_cache/
+.vscode/
+/build/
+/config.toml
+/data/
+node_modules/
