@@ -9,7 +9,7 @@ version = "0.1.0"
 dynamic = ["dependencies", "optional-dependencies"]
 
 [tool.setuptools]
-packages = ["api"]
+packages = ["realm_api"]
 
 [tool.setuptools.dynamic]
 dependencies = { file = "requirements/requirements.txt" }
