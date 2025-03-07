@@ -8,3 +8,11 @@ class LoginRequest(BaseModel):
 
 class LoginResponse(BaseModel):
     token: str
+
+
+class SharedGuildsRequest(BaseModel):
+    guild_ids: set[int]
+
+
+class SharedGuildsResponse(BaseModel):
+    guild_ids: set[int]

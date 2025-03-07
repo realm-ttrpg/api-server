@@ -1,2 +1,2 @@
 META_EXTENSION = True
-_mods = ["auth", "cors"]
+_mods = ["auth", "ipc", "cors"]

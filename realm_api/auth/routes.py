@@ -1,9 +1,15 @@
+# stdlib
+import json
+from multiprocessing import Queue
+from uuid import uuid4
+
 # 3rd party
 from aiohttp import ClientSession
 from fastapi import APIRouter, HTTPException, status
 
 # local
-from .models import LoginRequest, LoginResponse
+from .models import LoginRequest, LoginResponse, SharedGuildsRequest, SharedGuildsResponse
+from ..ipc import pubsub, redis_conn
 
 router = APIRouter(prefix="/auth")
 
@@ -29,3 +35,27 @@ async def login(login_request: LoginRequest) -> LoginResponse:
 def logout():
     # TODO remove session token from DB
     pass
+
+
+
+@router.post("/shared-guilds")
+async def shared_guilds(shared_guilds_request: SharedGuildsRequest) -> SharedGuildsResponse | None:
+    q = Queue()
+
+    def handler(message: dict):
+        data = json.loads(message["data"])
+        q.put(
+            SharedGuildsResponse(
+                guild_ids=set(
+                    data["guilds"]
+                ).intersection(shared_guilds_request.guild_ids),
+            )
+        )
+
+    uuid = str(uuid4())
+    pubsub.subscribe(**{uuid: handler})
+    redis_conn.publish("ipc", json.dumps({"uuid": uuid, "op": "guilds"}))
+    response = q.get(timeout=3)
+    pubsub.unsubscribe(uuid)
+
+    return response
