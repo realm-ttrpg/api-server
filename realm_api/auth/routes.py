@@ -8,7 +8,12 @@ from aiohttp import ClientSession
 from fastapi import APIRouter, HTTPException, status
 
 # local
-from .models import LoginRequest, LoginResponse, SharedGuildsRequest, SharedGuildsResponse
+from .models import (
+    LoginRequest,
+    LoginResponse,
+    SharedGuildsRequest,
+    SharedGuildsResponse,
+)
 from ..ipc import pubsub, redis_conn
 
 router = APIRouter(prefix="/auth")
@@ -37,18 +42,19 @@ def logout():
     pass
 
 
-
 @router.post("/shared-guilds")
-async def shared_guilds(shared_guilds_request: SharedGuildsRequest) -> SharedGuildsResponse | None:
+async def shared_guilds(
+    shared_guilds_request: SharedGuildsRequest,
+) -> SharedGuildsResponse | None:
     q = Queue()
 
     def handler(message: dict):
         data = json.loads(message["data"])
         q.put(
             SharedGuildsResponse(
-                guild_ids=set(
-                    data["guilds"]
-                ).intersection(shared_guilds_request.guild_ids),
+                guild_ids=set(data["guilds"]).intersection(
+                    shared_guilds_request.guild_ids
+                ),
             )
         )
 

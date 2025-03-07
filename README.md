@@ -16,6 +16,7 @@ Then, install the server package in your Python environment of choice:
 ```shell
 pip install -U 'realm_api@git+https://github.com/realm-ttrpg/api-server.git'
 ```
+
 ## Running
 
 In the same directory as your `config.toml` file:

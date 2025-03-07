@@ -19,7 +19,7 @@ dev = { file = "requirements/dev.txt" }
 docs = { file = "requirements/docs.txt" }
 
 [tool.ruff]
-ignore = [
+lint.ignore = [
 	# ambiguous variable name
 	"E741",
 ]
