@@ -60,8 +60,11 @@ async def shared_guilds(
 
     uuid = str(uuid4())
     pubsub.subscribe(**{uuid: handler})
-    redis_conn.publish("ipc", json.dumps({"uuid": uuid, "op": "guilds"}))
-    response = q.get(timeout=3)
-    pubsub.unsubscribe(uuid)
+
+    try:
+        redis_conn.publish("ipc", json.dumps({"uuid": uuid, "op": "guilds"}))
+        response = q.get(timeout=3)
+    finally:
+        pubsub.unsubscribe(uuid)
 
     return response
