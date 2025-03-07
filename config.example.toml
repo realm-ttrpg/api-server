@@ -1,7 +1,6 @@
 [bot]
 data_folder = "data"
 extensions = ["realm_api._all"]
-owner = "haliphax#4859"
 
 [webapp]
 host = "0.0.0.0"
