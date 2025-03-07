@@ -45,7 +45,7 @@ def logout():
 @router.post("/shared-guilds")
 async def shared_guilds(
     shared_guilds_request: SharedGuildsRequest,
-) -> SharedGuildsResponse | None:
+) -> SharedGuildsResponse:
     q = Queue()
 
     def handler(message: dict):
