@@ -11,8 +11,8 @@ class LoginResponse(BaseModel):
 
 
 class SharedGuildsRequest(BaseModel):
-    guild_ids: set[int]
+    guild_ids: set[str]
 
 
 class SharedGuildsResponse(BaseModel):
-    guild_ids: set[int]
+    guild_ids: set[str]
