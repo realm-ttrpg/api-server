@@ -1,7 +1,5 @@
 # stdlib
 import json
-from multiprocessing import Queue
-from uuid import uuid4
 
 # 3rd party
 from aiohttp import ClientSession
@@ -14,7 +12,7 @@ from .models import (
     SharedGuildsRequest,
     SharedGuildsResponse,
 )
-from ..ipc import pubsub, redis_conn
+from ..ipc import ipc_op, redis_conn
 
 router = APIRouter(prefix="/auth")
 
@@ -46,25 +44,14 @@ def logout():
 async def shared_guilds(
     shared_guilds_request: SharedGuildsRequest,
 ) -> SharedGuildsResponse:
-    q = Queue()
+    CACHE_EXPIRY = 60  # 1 minute
 
-    def handler(message: dict):
-        data = json.loads(message["data"])
-        q.put(
-            SharedGuildsResponse(
-                guild_ids=set(data["guilds"]).intersection(
-                    shared_guilds_request.guild_ids
-                ),
-            )
-        )
+    if cached := redis_conn.get("bot.guilds"):
+        bot_guilds = json.loads(cached)  # type: ignore
+    else:
+        bot_guilds = await ipc_op("guilds", timeout=3)
+        redis_conn.setex("bot.guilds", CACHE_EXPIRY, json.dumps(bot_guilds))
 
-    uuid = str(uuid4())
-    pubsub.subscribe(**{uuid: handler})
-
-    try:
-        redis_conn.publish("ipc", json.dumps({"uuid": uuid, "op": "guilds"}))
-        response = q.get(timeout=3)
-    finally:
-        pubsub.unsubscribe(uuid)
-
-    return response
+    return SharedGuildsResponse(
+        guild_ids=set(bot_guilds).intersection(shared_guilds_request.guild_ids),
+    )
