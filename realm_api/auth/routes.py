@@ -12,7 +12,7 @@ from .models import (
     SharedGuildsRequest,
     SharedGuildsResponse,
 )
-from ..ipc import ipc_op, redis_conn
+from ..rpc import redis_conn, rpc_bot
 
 router = APIRouter(prefix="/auth")
 
@@ -49,7 +49,7 @@ async def shared_guilds(
     if cached := redis_conn.get("bot.guilds"):
         bot_guilds = json.loads(cached)  # type: ignore
     else:
-        bot_guilds = await ipc_op("guilds", timeout=3)
+        bot_guilds = await rpc_bot("guilds")
         redis_conn.setex("bot.guilds", CACHE_EXPIRY, json.dumps(bot_guilds))
 
     return SharedGuildsResponse(
