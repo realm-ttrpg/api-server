@@ -1,6 +1,5 @@
 # stdlib
 import json
-from uuid import uuid4
 
 # 3rd party
 from aiohttp import ClientSession
@@ -38,7 +37,6 @@ async def login(
             if obj["user"]["id"] != login_request.user_id:
                 raise HTTPException(status.HTTP_403_FORBIDDEN)
 
-    # TODO generate, store, and return session token
     existing = session.exec(
         select(UserSession).where(
             UserSession.user_id == login_request.user_id,
@@ -46,12 +44,8 @@ async def login(
     ).one_or_none()
 
     if existing:
-        existing.discord_token = login_request.token
-        existing.realm_token = str(uuid4())
-        session.add(existing)
+        session.delete(existing)
         session.commit()
-
-        return LoginResponse(token=existing.realm_token)
 
     user_session = UserSession(
         user_id=login_request.user_id,
