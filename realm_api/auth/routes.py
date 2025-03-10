@@ -56,6 +56,7 @@ async def login(
     )
     session.add(user_session)
     await session.commit()
+    await session.refresh(user_session)
 
     return LoginResponse(token=user_session.realm_token)
 
