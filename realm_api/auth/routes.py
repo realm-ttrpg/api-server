@@ -4,7 +4,8 @@ import json
 # 3rd party
 from aiohttp import ClientSession
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlmodel import select, Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
 
 # local
 from ..db import get_session
@@ -24,7 +25,7 @@ router = APIRouter(prefix="/auth")
 @router.post("/login")
 async def login(
     login_request: LoginRequest,
-    session: Session = Depends(get_session),
+    session: AsyncSession = Depends(get_session),
 ) -> LoginResponse:
     async with ClientSession() as http:
         http.headers.add("Authorization", f"Bearer {login_request.token}")
@@ -37,33 +38,35 @@ async def login(
             if obj["user"]["id"] != login_request.user_id:
                 raise HTTPException(status.HTTP_403_FORBIDDEN)
 
-    existing = session.exec(
-        select(UserSession).where(
-            UserSession.user_id == login_request.user_id,
+    existing = (
+        await session.execute(
+            select(UserSession).where(
+                UserSession.user_id == login_request.user_id,
+            )
         )
-    ).one_or_none()
+    ).scalar_one_or_none()
 
     if existing:
-        session.delete(existing)
-        session.commit()
+        await session.delete(existing)
+        await session.commit()
 
     user_session = UserSession(
         user_id=login_request.user_id,
         discord_token=login_request.token,
     )
     session.add(user_session)
-    session.commit()
+    await session.commit()
 
     return LoginResponse(token=user_session.realm_token)
 
 
 @router.post("/logout")
-def logout(
-    session: Session = Depends(get_session),
+async def logout(
+    session: AsyncSession = Depends(get_session),
     user_session: UserSession = Depends(require_login),
 ):
-    session.delete(user_session)
-    session.flush()
+    await session.delete(user_session)
+    await session.flush()
 
 
 @router.post("/shared-guilds")
