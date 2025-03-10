@@ -12,10 +12,10 @@ from ..models.user_session import UserSession
 async def require_login(
     user_id: str = Depends(APIKeyHeader(name="X-Realm-User")),
     realm_token: str = Depends(APIKeyHeader(name="X-Realm-Token")),
-    session: AsyncSession = Depends(get_session),
+    db: AsyncSession = Depends(get_session),
 ):
     user_session = (
-        await session.execute(
+        await db.execute(
             select(UserSession).where(
                 UserSession.user_id == user_id,
                 UserSession.realm_token == realm_token,
