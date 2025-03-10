@@ -9,10 +9,6 @@ engine = create_engine(
 )
 
 
-def init_db():
-    SQLModel.metadata.create_all(engine)
-
-
 def get_session():
     with Session(engine) as session:
         yield session
@@ -21,4 +17,4 @@ def get_session():
 def setup_webapp(*_):
     from .models.user_session import UserSession  # noqa: F401
 
-    init_db()
+    SQLModel.metadata.create_all(engine)
