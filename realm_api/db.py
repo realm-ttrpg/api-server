@@ -25,4 +25,4 @@ def setup_webapp(app: FastAPI, *_):
         async with async_engine.begin() as conn:
             await conn.run_sync(SQLModel.metadata.create_all)
 
-    app.add_event_handler("startup", init_db)
+    app.on_event("startup")(init_db)
