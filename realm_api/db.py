@@ -1,3 +1,5 @@
+"""Database functionality and Aethersprite extension"""
+
 # stdlib
 import os
 

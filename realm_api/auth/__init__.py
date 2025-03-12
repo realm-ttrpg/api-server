@@ -1,3 +1,5 @@
+"""Authentication/authorization"""
+
 # 3rd party
 from fastapi import APIRouter, FastAPI
 

@@ -1,3 +1,5 @@
+"""FastAPI resources for use in `Depends()`"""
+
 # 3rd party
 from fastapi import Depends, HTTPException, status
 from fastapi.security import APIKeyHeader

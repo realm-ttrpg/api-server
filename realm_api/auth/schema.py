@@ -1,3 +1,5 @@
+"""HTTP request/response schema for authz/authn routes"""
+
 from pydantic import BaseModel
 
 

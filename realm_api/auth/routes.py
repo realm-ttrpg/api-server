@@ -1,11 +1,13 @@
-# stdlib
+"""Authentication/authorization routes"""
 
 # 3rd party
 from aiohttp import ClientSession
 from fastapi import APIRouter, Depends, HTTPException, status
-from realm_schema import BotGuildsResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
+
+# suite
+from realm_schema import BotGuildsResponse
 
 # local
 from ..db import get_session
