@@ -25,9 +25,12 @@ handlers = {
 def handler(message: dict):
     """Handle an incoming RPC operation and publish the result."""
 
-    data = json.loads(message["data"])
+    data: dict = json.loads(message["data"])
     log.info(f"RPC op: {data['op']}")
-    result = handlers[data["op"]](data)
+    result = handlers[data["op"]](
+        *data.get("args", []),
+        **data.get("kwargs", dict()),
+    )
     redis_conn.publish(data["uuid"], json.dumps(result))
 
 
@@ -37,7 +40,7 @@ async def rpc_bot(op: str, *args, timeout=3, **kwargs):
     q = aio.Queue()
 
     def handler(message: dict):
-        data = json.loads(message["data"])
+        data = message["data"]
         aio.new_event_loop().run_until_complete(q.put(data))
 
     uuid = str(uuid4())

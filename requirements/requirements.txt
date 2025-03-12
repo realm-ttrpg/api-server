@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements.in
 #
-aethersprite @ git+https://github.com/haliphax/aethersprite.git
+aethersprite @ git+https://github.com/haliphax/aethersprite.git@main
     # via -r requirements.in
 aiohappyeyeballs==2.3.5
     # via
@@ -80,6 +80,7 @@ pydantic==2.6.4
     # via
     #   aethersprite
     #   fastapi
+    #   realm-schema
     #   sqlmodel
 pydantic-core==2.16.3
     # via
@@ -95,19 +96,21 @@ pyyaml==6.0.1
     # via
     #   aethersprite
     #   uvicorn
+realm-schema @ git+https://github.com/realm-ttrpg/schema.git@main
+    # via -r requirements.in
 redis==5.2.1
     # via -r requirements.in
 sniffio==1.3.1
     # via
     #   aethersprite
     #   anyio
-sqlalchemy[asyncio]==2.0.38
+sqlalchemy[asyncio]==2.0.39
     # via
     #   -r requirements.in
     #   sqlmodel
 sqlitedict==2.1.0
     # via aethersprite
-sqlmodel[asyncio]==0.0.24
+sqlmodel==0.0.24
     # via -r requirements.in
 starlette==0.36.3
     # via

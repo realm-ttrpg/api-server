@@ -1,9 +1,9 @@
 # stdlib
-import json
 
 # 3rd party
 from aiohttp import ClientSession
 from fastapi import APIRouter, Depends, HTTPException, status
+from realm_schema import BotGuildsResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
@@ -78,11 +78,19 @@ async def shared_guilds(
     CACHE_EXPIRY = 60  # 1 minute
 
     if cached := redis_conn.get("bot.guilds"):
-        bot_guilds = json.loads(cached)  # type: ignore
+        bot_guilds = (
+            BotGuildsResponse.model_validate_json(cached)  # type: ignore
+        )
     else:
-        bot_guilds = await rpc_bot("guilds")
-        redis_conn.setex("bot.guilds", CACHE_EXPIRY, json.dumps(bot_guilds))
+        bot_guilds = BotGuildsResponse.model_validate_json(
+            await rpc_bot("guilds")
+        )
+        redis_conn.setex(
+            "bot.guilds", CACHE_EXPIRY, bot_guilds.model_dump_json()
+        )
 
     return SharedGuildsResponse(
-        guild_ids=set(bot_guilds).intersection(shared_guilds_request.guild_ids),
+        guild_ids=bot_guilds.guild_ids.intersection(
+            shared_guilds_request.guild_ids
+        ),
     )
