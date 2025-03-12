@@ -1,6 +1,6 @@
 [bot]
 data_folder = "data"
-extensions = ["realm_api._all"]
+extensions = ["realm_api._all", "realm_api.cors"]
 
 [webapp]
 host = "0.0.0.0"
