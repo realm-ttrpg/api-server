@@ -50,7 +50,14 @@ async def login(
     await db.commit()
     await db.refresh(user_session)
 
-    return LoginResponse(token=user_session.realm_token)
+    return LoginResponse(
+        token=user_session.realm_token,
+        user=LoginResponse.User(
+            id=discord.user_id,
+            name=obj["user"]["username"],
+            avatar=obj["user"]["avatar"],
+        ),
+    )
 
 
 @router.post("/logout")

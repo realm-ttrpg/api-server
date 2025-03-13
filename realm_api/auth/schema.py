@@ -9,7 +9,13 @@ class LoginRequest(BaseModel):
 
 
 class LoginResponse(BaseModel):
+    class User(BaseModel):
+        id: str
+        name: str
+        avatar: str
+
     token: str
+    user: User
 
 
 class SharedGuildsResponse(BaseModel):
