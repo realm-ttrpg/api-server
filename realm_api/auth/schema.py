@@ -12,9 +12,5 @@ class LoginResponse(BaseModel):
     token: str
 
 
-class SharedGuildsRequest(BaseModel):
-    guild_ids: set[str]
-
-
 class SharedGuildsResponse(BaseModel):
-    guild_ids: set[str]
+    guilds: list[dict]

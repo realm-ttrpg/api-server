@@ -1,7 +1,6 @@
 """Authentication/authorization routes"""
 
 # 3rd party
-from aiohttp import ClientSession
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
@@ -11,15 +10,11 @@ from realm_schema import BotGuildsResponse
 
 # local
 from ..db import get_session
+from ..discord import DiscordClient
 from ..models.user_session import UserSession
 from ..rpc import redis_conn, rpc_bot
 from .depends import require_login
-from .schema import (
-    LoginRequest,
-    LoginResponse,
-    SharedGuildsRequest,
-    SharedGuildsResponse,
-)
+from .schema import LoginRequest, LoginResponse, SharedGuildsResponse
 
 router = APIRouter(prefix="/auth")
 
@@ -29,21 +24,16 @@ async def login(
     login_request: LoginRequest,
     db: AsyncSession = Depends(get_session),
 ) -> LoginResponse:
-    async with ClientSession() as http:
-        http.headers.add("Authorization", f"Bearer {login_request.token}")
+    discord = DiscordClient(login_request.user_id, login_request.token)
+    obj = await discord.get_user_info()
 
-        async with http.get(
-            "https://discord.com/api/v10/oauth2/@me"
-        ) as response:
-            obj = await response.json()
-
-            if obj["user"]["id"] != login_request.user_id:
-                raise HTTPException(status.HTTP_403_FORBIDDEN)
+    if obj["user"]["id"] != login_request.user_id:
+        raise HTTPException(status.HTTP_403_FORBIDDEN)
 
     existing = (
         await db.execute(
             select(UserSession).where(
-                UserSession.user_id == login_request.user_id,
+                UserSession.user_id == discord.user_id,
             )
         )
     ).scalar_one_or_none()
@@ -53,8 +43,8 @@ async def login(
         await db.commit()
 
     user_session = UserSession(
-        user_id=login_request.user_id,
-        discord_token=login_request.token,
+        user_id=discord.user_id,
+        discord_token=discord.token,
     )
     db.add(user_session)
     await db.commit()
@@ -72,12 +62,14 @@ async def logout(
     await db.flush()
 
 
-@router.post("/shared-guilds")
+@router.get("/shared-guilds")
 async def shared_guilds(
-    shared_guilds_request: SharedGuildsRequest,
-    _session=Depends(require_login),
+    session: UserSession = Depends(require_login),
 ) -> SharedGuildsResponse:
     CACHE_EXPIRY = 60  # 1 minute
+
+    discord = DiscordClient(session.user_id, session.discord_token)
+    my_guilds = await discord.get_guilds()
 
     if cached := redis_conn.get("bot.guilds"):
         bot_guilds = (
@@ -92,7 +84,5 @@ async def shared_guilds(
         )
 
     return SharedGuildsResponse(
-        guild_ids=bot_guilds.guild_ids.intersection(
-            shared_guilds_request.guild_ids
-        ),
+        guilds=[g for g in my_guilds if g["id"] in bot_guilds.guild_ids],
     )
