@@ -33,5 +33,6 @@
 	},
 	"scripts": {
 		"prepare": "husky"
-	}
+	},
+	"type": "module"
 }
