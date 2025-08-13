@@ -1,9 +1,9 @@
-**/*.egg-info
-**/__pycache__/
+*.egg-info
 .env
 .ruff_cache/
 .vscode/
 /build/
 /config.toml
 /data/*.sqlite3
+__pycache__/
 node_modules/
