@@ -3,11 +3,9 @@
 # 3rd party
 from sqlmodel import Field, SQLModel
 
-# local
-from .game import Game
-from .player import Player
-
 
 class GamePlayer(SQLModel, table=True):
-    game_id: int = Field(foreign_key=Game.id, primary_key=True)
-    player_id: str = Field(foreign_key=Player.user_id, primary_key=True)
+    __tablename__ = "game_player"  # type: ignore
+
+    game_id: int = Field(foreign_key="game.id", primary_key=True)
+    player_id: str = Field(foreign_key="player.user_id", primary_key=True)

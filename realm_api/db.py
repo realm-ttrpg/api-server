@@ -30,20 +30,20 @@ async def get_session():
 def setup_webapp(app: FastAPI, *_):
     async def init_db():
         for mod in [
-            "character.Character",
-            "character_prop.CharacterProp",
-            "character_stat.CharacterStat",
-            "game.Game",
-            "game_player.GamePlayer",
-            "game_player_role.GamePlayerRole",
-            "game_role.GameRole",
-            "guild.Guild",
-            "player.Player",
-            "role.Role",
-            "system.System",
-            "user_session.UserSession",
+            "character",
+            "character_prop",
+            "character_stat",
+            "game",
+            "game_player",
+            "game_player_role",
+            "game_role",
+            "guild",
+            "player",
+            "role",
+            "system",
+            "user_session",
         ]:
-            import_module(f".models.{mod}", __name__)
+            import_module(f".models.{mod}", __package__)
 
         log.info("Initializing database")
 
