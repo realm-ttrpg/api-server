@@ -33,10 +33,16 @@ class StartupMiddleware:
         """Initializes the database."""
 
         for mod in [
+            "character.Character",
             "character_prop.CharacterProp",
             "character_stat.CharacterStat",
             "game.Game",
+            "game_player.GamePlayer",
+            "game_player_role.GamePlayerRole",
+            "game_role.GameRole",
             "guild.Guild",
+            "player.Player",
+            "role.Role",
             "system.System",
             "user_session.UserSession",
         ]:
