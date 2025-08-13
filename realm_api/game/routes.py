@@ -2,28 +2,43 @@
 
 # 3rd party
 from fastapi import APIRouter, Depends
+from sqlmodel import select
+from sqlmodel.ext.asyncio.session import AsyncSession
 
 # local
-from ..auth.depends import require_login
-from ..models.user_session import UserSession
+from ..db import get_session
+from ..models.game import Game
+from .depends import user_in_guild
 from .schema import GameResponse
 
 router = APIRouter(prefix="/game")
 
 
 @router.get("/list/{guild_id}")
-def list_games(
-    guild_id: int, session: UserSession = Depends(require_login)
+async def list_games(
+    guild_id: int,
+    db: AsyncSession = Depends(get_session),
+    in_guild=Depends(user_in_guild),
 ) -> list[GameResponse]:
-    return [
-        GameResponse(id=1234, name="Butts"),
-        GameResponse(id=2345, name="Moar butts"),
+    games = (
+        await db.exec(select(Game).where(Game.guild_id == str(guild_id)))
+    ).all()
+    response = [
+        GameResponse.model_validate(game, from_attributes=True)
+        for game in games
     ]
 
+    return response
 
-@router.get("/{game_id}")
-def get_game(
+
+@router.get("/{guild_id}/{game_id}")
+async def get_game(
+    guild_id: int,
     game_id: int,
-    session: UserSession = Depends(require_login),
+    db: AsyncSession = Depends(get_session),
+    in_guild=Depends(user_in_guild),
 ) -> GameResponse:
-    return GameResponse(id=1234, name="Butts")
+    game = (await db.exec(select(Game).where(Game.id == str(game_id)))).one()
+    response = GameResponse.model_validate(game, from_attributes=True)
+
+    return response
