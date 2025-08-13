@@ -20,18 +20,15 @@ DB_URL = os.environ.get(
 async_engine = create_async_engine(DB_URL, future=True)
 
 
-class StartupMiddleware:
-    """Startup middleware for initializing the database"""
+async def get_session():
+    """Get an `AsyncSession` object."""
 
-    initialized: aio.Event = aio.Event()
+    async with AsyncSession(async_engine) as session:
+        yield session
 
-    def __init__(self, app):
-        self.app = app
 
-    @classmethod
-    async def init_db(cls):
-        """Initializes the database."""
-
+def setup_webapp(app: FastAPI, *_):
+    async def init_db():
         for mod in [
             "character.Character",
             "character_prop.CharacterProp",
@@ -53,20 +50,4 @@ class StartupMiddleware:
         async with async_engine.begin() as conn:
             await conn.run_sync(SQLModel.metadata.create_all)
 
-    async def __call__(self, scope, receive, send):
-        if not StartupMiddleware.initialized.is_set():
-            await StartupMiddleware.init_db()
-            StartupMiddleware.initialized.set()
-
-        await self.app(scope, receive, send)
-
-
-async def get_session():
-    """Get an `AsyncSession` object."""
-
-    async with AsyncSession(async_engine) as session:
-        yield session
-
-
-def setup_webapp(app: FastAPI, *_):
-    app.add_middleware(StartupMiddleware)
+    aio.get_event_loop().run_until_complete(init_db())
