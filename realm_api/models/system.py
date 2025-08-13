@@ -1,4 +1,4 @@
-"""Game System model"""
+"""Game system model"""
 
 # 3rd party
 from sqlmodel import Field, SQLModel

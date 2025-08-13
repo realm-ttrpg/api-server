@@ -1,4 +1,4 @@
-"""Character model"""
+"""Character stat model"""
 
 # 3rd party
 from sqlmodel import Field, SQLModel
