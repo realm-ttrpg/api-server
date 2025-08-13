@@ -33,14 +33,14 @@ class StartupMiddleware:
         """Initializes the database."""
 
         for mod in [
-            "models.character_prop.CharacterProp",
-            "models.character_stat.CharacterStat",
-            "models.game.Game",
-            "models.guild.Guild",
-            "models.system.System",
-            "models.user_session.UserSession",
+            "character_prop.CharacterProp",
+            "character_stat.CharacterStat",
+            "game.Game",
+            "guild.Guild",
+            "system.System",
+            "user_session.UserSession",
         ]:
-            import_module(mod)
+            import_module(f".models.{mod}", __name__)
 
         log.info("Initializing database")
 
