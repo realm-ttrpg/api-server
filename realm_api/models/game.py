@@ -12,3 +12,4 @@ class Game(SQLModel, table=True):
     id: int = Field(primary_key=True)
     system_id: int = Field(foreign_key=System.id)
     guild_id: str = Field(foreign_key=Guild.id)
+    name: str = Field(max_length=128)

@@ -2,6 +2,7 @@
 
 # stdlib
 import asyncio as aio
+from importlib import import_module
 import os
 
 # 3rd party
@@ -31,7 +32,15 @@ class StartupMiddleware:
     async def init_db(cls):
         """Initializes the database."""
 
-        from .models.user_session import UserSession  # noqa: F401
+        for mod in [
+            "models.character_prop.CharacterProp",
+            "models.character_stat.CharacterStat",
+            "models.game.Game",
+            "models.guild.Guild",
+            "models.system.System",
+            "models.user_session.UserSession",
+        ]:
+            import_module(mod)
 
         log.info("Initializing database")
 
