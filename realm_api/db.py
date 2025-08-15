@@ -2,7 +2,6 @@
 
 # stdlib
 import asyncio as aio
-from importlib import import_module
 import os
 
 # 3rd party
@@ -30,23 +29,9 @@ class StartupMiddleware:
 
     @classmethod
     async def init_db(cls):
-        log.info("Initializing database")
+        from . import models  # noqa: F401
 
-        for mod in [
-            "character",
-            "character_prop",
-            "character_stat",
-            "game",
-            "game_player",
-            "game_player_role",
-            "game_role",
-            "guild",
-            "player",
-            "role",
-            "system",
-            "user_session",
-        ]:
-            import_module(f".models.{mod}", __package__)
+        log.info("Initializing database")
 
         async with async_engine.begin() as conn:
             await conn.run_sync(SQLModel.metadata.create_all)
