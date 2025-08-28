@@ -9,10 +9,10 @@ from sqlmodel import select
 from realm_schema import BotGuildsResponse
 
 # local
-from ..db import get_session
-from ..discord import DiscordClient
-from ..models.user_session import UserSession
-from ..rpc import redis_conn, rpc_bot
+from realm_api.db import get_session
+from realm_api.discord import DiscordClient
+from realm_api.models.user_session import UserSession
+from realm_api.rpc import redis_conn, rpc_bot
 from .depends import require_login
 from .schema import LoginRequest, LoginResponse, SharedGuildsResponse
 
@@ -78,7 +78,7 @@ async def shared_guilds(
     discord = DiscordClient(session.user_id, session.discord_token)
     my_guilds = await discord.get_guilds()
 
-    if cached := redis_conn.get("bot.guilds"):
+    if cached := await redis_conn.get("bot.guilds"):
         bot_guilds = (
             BotGuildsResponse.model_validate_json(cached)  # type: ignore
         )
@@ -86,7 +86,7 @@ async def shared_guilds(
         bot_guilds = BotGuildsResponse.model_validate_json(
             await rpc_bot("guilds")
         )
-        redis_conn.setex(
+        await redis_conn.setex(
             "bot.guilds", CACHE_EXPIRY, bot_guilds.model_dump_json()
         )
 

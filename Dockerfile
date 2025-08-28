@@ -24,4 +24,4 @@ RUN <<-EOF
 	pip install --no-cache -Ue .
 EOF
 
-ENTRYPOINT [ "/usr/local/bin/python", "-m", "aethersprite.webapp" ]
+ENTRYPOINT [ "/usr/local/bin/python", "-m", "realm_api" ]

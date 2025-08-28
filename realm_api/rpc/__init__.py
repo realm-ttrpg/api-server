@@ -7,26 +7,35 @@ import os
 from uuid import uuid4
 
 # 3rd party
-import redis
-
-# api
-from aethersprite import log
+from redis.asyncio import StrictRedis
 
 # local
+from realm_api.logging import logger
 from .roll import roll_handler
 
-redis_conn = redis.StrictRedis(host=os.environ.get("REDIS_HOST", "localhost"))
+redis_conn = StrictRedis(host=os.environ.get("REDIS_HOST", "localhost"))
 pubsub = redis_conn.pubsub(ignore_subscribe_messages=True)
 handlers = {
     "roll": roll_handler,
 }
 
 
+async def init_pubsub() -> aio.Task:
+    await pubsub.subscribe(**{"rpc.api": handler})
+    return aio.create_task(pubsub.run())
+
+
+async def shutdown_pubsub(task: aio.Task):
+    pubsub.unsubscribe()
+    await pubsub.close()
+    task.cancel()
+
+
 def handler(message: dict):
     """Handle an incoming RPC operation and publish the result."""
 
     data: dict = json.loads(message["data"])
-    log.info(f"RPC op: {data['op']}")
+    logger.info(f"RPC op: {data['op']}")
     result = handlers[data["op"]](
         *data.get("args", []),
         **data.get("kwargs", dict()),
@@ -39,37 +48,22 @@ async def rpc_bot(op: str, *args, timeout=3, **kwargs):
 
     q = aio.Queue()
 
-    def handler(message: dict):
+    async def handler(message: dict):
         data = message["data"]
-        aio.new_event_loop().run_until_complete(q.put(data))
+        await q.put(data)
 
     uuid = str(uuid4())
-    pubsub.subscribe(**{uuid: handler})
+    await pubsub.subscribe(**{uuid: handler})
+    message = {
+        "uuid": uuid,
+        "op": op,
+        "args": args,
+        "kwargs": kwargs,
+    }
 
     try:
-        redis_conn.publish(
-            "rpc.bot",
-            json.dumps(
-                {
-                    "uuid": uuid,
-                    "op": op,
-                    "args": args,
-                    "kwargs": kwargs,
-                }
-            ),
-        )
-
+        await redis_conn.publish("rpc.bot", json.dumps(message))
         return await aio.wait_for(q.get(), timeout)
 
     finally:
-        pubsub.unsubscribe(uuid)
-
-
-def setup_webapp(*_):
-    pubsub.subscribe(**{"rpc.api": handler})
-    pubsub.run_in_thread(daemon=True, sleep_time=0.01)
-
-
-def teardown_webapp(*_):
-    pubsub.unsubscribe()
-    pubsub.close()
+        await pubsub.unsubscribe(uuid)

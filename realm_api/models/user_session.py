@@ -12,6 +12,8 @@ def uuid_factory():
 
 
 class UserSession(SQLModel, table=True):
+    __tablename__ = "user_session"  # type: ignore
+
     user_id: str = Field(primary_key=True, max_length=32)
     discord_token: str = Field(max_length=64)
     realm_token: str = Field(

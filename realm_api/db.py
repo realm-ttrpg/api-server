@@ -1,17 +1,16 @@
-"""Database functionality and Aethersprite extension"""
+"""Database functionality"""
 
 # stdlib
-import asyncio as aio
 import os
 
 # 3rd party
-from fastapi import FastAPI
 from sqlmodel import SQLModel
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-# api
-from aethersprite import log
+# local
+from realm_api.logging import logger
+
 
 DB_URL = os.environ.get(
     "DB_URL", "postgresql+asyncpg://realm:realm@localhost/realm"
@@ -19,31 +18,15 @@ DB_URL = os.environ.get(
 async_engine = create_async_engine(DB_URL, future=True)
 
 
-class StartupMiddleware:
-    """Startup middleware for initializing the database"""
+async def init_db():
+    """Initialize the database. Used in the FastAPI application lifespan."""
 
-    initialized: aio.Event = aio.Event()
+    from . import models  # noqa: F401
 
-    def __init__(self, app):
-        self.app = app
+    logger.info("Initializing database")
 
-    @classmethod
-    async def init_db(cls):
-        """Initializes the database."""
-
-        from .models.user_session import UserSession  # noqa: F401
-
-        log.info("Initializing database")
-
-        async with async_engine.begin() as conn:
-            await conn.run_sync(SQLModel.metadata.create_all)
-
-    async def __call__(self, scope, receive, send):
-        if not StartupMiddleware.initialized.is_set():
-            await StartupMiddleware.init_db()
-            StartupMiddleware.initialized.set()
-
-        await self.app(scope, receive, send)
+    async with async_engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
 
 
 async def get_session():
@@ -51,7 +34,3 @@ async def get_session():
 
     async with AsyncSession(async_engine) as session:
         yield session
-
-
-def setup_webapp(app: FastAPI, *_):
-    app.add_middleware(StartupMiddleware)

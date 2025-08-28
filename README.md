@@ -22,7 +22,7 @@ pip install -U 'realm_api@git+https://github.com/realm-ttrpg/api-server.git'
 In the same directory as your `config.toml` file:
 
 ```shell
-python -m aethersprite.webapp
+python -m realm_api
 ```
 
 [bot software]: https://github.com/realm-ttrpg/discord-bot
