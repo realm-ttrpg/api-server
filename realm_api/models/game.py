@@ -10,6 +10,7 @@ from sqlmodel import Field, Relationship, SQLModel
 from .system import System
 
 if TYPE_CHECKING:
+    from .game_player import GamePlayer
     from .guild import Guild
 
 
@@ -20,3 +21,4 @@ class Game(SQLModel, table=True):
     guild_id: str = Field(foreign_key="guild.id")
     guild: "Guild" = Relationship(back_populates="games")
     name: str = Field(max_length=128)
+    players: list["GamePlayer"] = Relationship(back_populates="game")
