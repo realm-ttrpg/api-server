@@ -10,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # local
 from .api import router
 from .db import init_db
+from .rpc import init_pubsub, shutdown_pubsub
 
 
 @asynccontextmanager
@@ -17,7 +18,9 @@ async def lifespan(app: FastAPI):
     """Lifespan function: startup -> yield -> shutdown"""
 
     await init_db()
+    task = await init_pubsub()
     yield
+    await shutdown_pubsub(task)
 
 
 app = FastAPI(lifespan=lifespan)

@@ -78,7 +78,7 @@ async def shared_guilds(
     discord = DiscordClient(session.user_id, session.discord_token)
     my_guilds = await discord.get_guilds()
 
-    if cached := redis_conn.get("bot.guilds"):
+    if cached := await redis_conn.get("bot.guilds"):
         bot_guilds = (
             BotGuildsResponse.model_validate_json(cached)  # type: ignore
         )
@@ -86,7 +86,7 @@ async def shared_guilds(
         bot_guilds = BotGuildsResponse.model_validate_json(
             await rpc_bot("guilds")
         )
-        redis_conn.setex(
+        await redis_conn.setex(
             "bot.guilds", CACHE_EXPIRY, bot_guilds.model_dump_json()
         )
 
