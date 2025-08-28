@@ -26,21 +26,21 @@ async def init_pubsub() -> aio.Task:
 
 
 async def shutdown_pubsub(task: aio.Task):
-    pubsub.unsubscribe()
+    await pubsub.unsubscribe()
     await pubsub.close()
     task.cancel()
 
 
-def handler(message: dict):
+async def handler(message: dict):
     """Handle an incoming RPC operation and publish the result."""
 
     data: dict = json.loads(message["data"])
     logger.info(f"RPC op: {data['op']}")
-    result = handlers[data["op"]](
+    result = await handlers[data["op"]](
         *data.get("args", []),
         **data.get("kwargs", dict()),
     )
-    redis_conn.publish(data["uuid"], json.dumps(result))
+    await redis_conn.publish(data["uuid"], json.dumps(result))
 
 
 async def rpc_bot(op: str, *args, timeout=3, **kwargs):
