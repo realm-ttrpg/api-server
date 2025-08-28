@@ -1,7 +1,9 @@
-aethersprite@git+https://github.com/haliphax/aethersprite.git@main
+aiohttp
 asyncpg
+fastapi
 hiredis
 realm_schema@git+https://github.com/realm-ttrpg/schema.git@main
 redis
 sqlalchemy[asyncio]
 sqlmodel
+uvicorn[standard]

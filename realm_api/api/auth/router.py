@@ -9,10 +9,10 @@ from sqlmodel import select
 from realm_schema import BotGuildsResponse
 
 # local
-from ..db import get_session
-from ..discord import DiscordClient
-from ..models.user_session import UserSession
-from ..rpc import redis_conn, rpc_bot
+from realm_api.db import get_session
+from realm_api.discord import DiscordClient
+from realm_api.models.user_session import UserSession
+from realm_api.rpc import redis_conn, rpc_bot
 from .depends import require_login
 from .schema import LoginRequest, LoginResponse, SharedGuildsResponse
 

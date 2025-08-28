@@ -6,11 +6,11 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 # local
-from ..auth.depends import require_login
-from ..db import get_session
-from ..models.game import Game
-from ..models.game_player import GamePlayer
-from ..models.user_session import UserSession
+from realm_api.api.auth.depends import require_login
+from realm_api.db import get_session
+from realm_api.models.game import Game
+from realm_api.models.game_player import GamePlayer
+from realm_api.models.user_session import UserSession
 
 
 async def user_in_guild(

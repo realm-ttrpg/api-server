@@ -7,8 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
 # local
-from ..db import get_session
-from ..models.user_session import UserSession
+from realm_api.db import get_session
+from realm_api.models.user_session import UserSession
 
 
 async def require_login(

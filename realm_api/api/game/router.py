@@ -6,8 +6,8 @@ from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 # local
-from ..db import get_session
-from ..models.game import Game
+from realm_api.db import get_session
+from realm_api.models.game import Game
 from .depends import user_in_guild
 from .schema import GameResponse
 

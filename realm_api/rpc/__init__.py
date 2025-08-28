@@ -9,10 +9,8 @@ from uuid import uuid4
 # 3rd party
 import redis
 
-# api
-from aethersprite import log
-
 # local
+from realm_api.logging import logger
 from .roll import roll_handler
 
 redis_conn = redis.StrictRedis(host=os.environ.get("REDIS_HOST", "localhost"))
@@ -26,7 +24,7 @@ def handler(message: dict):
     """Handle an incoming RPC operation and publish the result."""
 
     data: dict = json.loads(message["data"])
-    log.info(f"RPC op: {data['op']}")
+    logger.info(f"RPC op: {data['op']}")
     result = handlers[data["op"]](
         *data.get("args", []),
         **data.get("kwargs", dict()),
