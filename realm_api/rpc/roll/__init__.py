@@ -6,6 +6,7 @@ from re import compile
 
 # api
 from realm_schema import (
+    BatchResults,
     ConstantModifier,
     DiceRoll,
     RollResults,
@@ -14,6 +15,7 @@ from realm_schema import (
 )
 
 # local
+from realm_api.logging import logger
 from .parse import parse_segments
 
 
@@ -109,19 +111,20 @@ def roll_segment(segment: RollSegment) -> SegmentResult:
     raise NotImplementedError()
 
 
-async def roll_handler(formula: str) -> list[RollResults]:
+async def roll_handler(formula: str) -> BatchResults:
     """Roll them bones."""
 
-    results = []
+    results = BatchResults(results=[])
 
     try:
         batches = parse_segments(formula)
 
         for segments in batches:
-            results.append(
+            results.results.append(
                 RollResults(results=[roll_segment(s) for s in segments])
             )
-    except Exception:
-        return []
+    except Exception as ex:
+        logger.warning(ex)
+        return BatchResults(results=[])
 
     return results

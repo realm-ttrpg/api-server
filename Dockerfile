@@ -21,7 +21,7 @@ COPY realm_api /app/realm_api
 
 RUN <<-EOF
 	mkdir -p /app/data
-	pip install --no-cache -Ue .
+	pip install --no-cache --no-warn-script-location -Ue .
 EOF
 
 ENTRYPOINT [ "/usr/local/bin/python", "-m", "realm_api" ]

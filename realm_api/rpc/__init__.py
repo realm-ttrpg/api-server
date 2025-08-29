@@ -7,6 +7,7 @@ import os
 from uuid import uuid4
 
 # 3rd party
+from pydantic import BaseModel
 from redis.asyncio import StrictRedis
 
 # local
@@ -36,11 +37,12 @@ async def handler(message: dict):
 
     data: dict = json.loads(message["data"])
     logger.info(f"RPC op: {data['op']}")
-    result = await handlers[data["op"]](
+    result: BaseModel = await handlers[data["op"]](
         *data.get("args", []),
         **data.get("kwargs", dict()),
     )
-    await redis_conn.publish(data["uuid"], json.dumps(result))
+    response = result.model_dump_json()
+    await redis_conn.publish(data["uuid"], response)
 
 
 async def rpc_bot(op: str, *args, timeout=3, **kwargs):
