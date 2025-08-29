@@ -1,8 +1,12 @@
+"""Discord client"""
+
 # 3rd party
 from aiohttp import ClientSession
 
 
 class DiscordClient:
+    """Discord client for out-of-band requests"""
+
     user_id: str
     token: str
 

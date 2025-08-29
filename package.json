@@ -4,7 +4,7 @@
 		"@semantic-release/changelog": "^6.0.3",
 		"@semantic-release/git": "^10.0.1",
 		"@semantic-release/github": "^11.0.1",
-		"commitlint": "^17.7.1",
+		"commitlint": "^17.8.1",
 		"gitmoji-cli": "^8.5.0",
 		"husky": "^9.1.7",
 		"nano-staged": "^0.8.0",
