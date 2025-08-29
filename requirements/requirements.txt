@@ -22,6 +22,8 @@ attrs==25.3.0
     # via aiohttp
 click==8.2.1
     # via uvicorn
+colorlog==6.9.0
+    # via -r requirements.in
 fastapi==0.116.1
     # via -r requirements.in
 frozenlist==1.7.0
