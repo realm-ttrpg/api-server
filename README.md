@@ -8,10 +8,7 @@ An API server for use with the associated [bot software][] and
 
 ## Installing
 
-First, make a `config.toml` file from the provided `config.example.toml` file,
-providing it with any settings tweaks you wish to apply.
-
-Then, install the server package in your Python environment of choice:
+Install the server package in your Python environment of choice:
 
 ```shell
 pip install -U 'realm_api@git+https://github.com/realm-ttrpg/api-server.git'
@@ -19,11 +16,18 @@ pip install -U 'realm_api@git+https://github.com/realm-ttrpg/api-server.git'
 
 ## Running
 
-In the same directory as your `config.toml` file:
-
 ```shell
 python -m realm_api
 ```
+
+## Configuration
+
+Settings are available via the following environment variables:
+
+- `DB_URL` - Postgres connection string
+- `REALM_HOST` - Hostname/IP to bind to
+- `REALM_PORT` - Port to bind to
+- `REDIS_HOST` - Hostname for redis server
 
 [bot software]: https://github.com/realm-ttrpg/discord-bot
 [tabletop roleplaying games]: https://en.wikipedia.org/wiki/Tabletop_role-playing_game

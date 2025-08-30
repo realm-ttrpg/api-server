@@ -15,7 +15,6 @@ EOF
 
 USER rpgserver
 COPY pyproject.toml /app/
-COPY config.toml /app/
 COPY requirements /app/requirements
 COPY realm_api /app/realm_api
 
