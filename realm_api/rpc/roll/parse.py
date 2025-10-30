@@ -12,6 +12,8 @@ roll_regex = compile(
     r"d(?P<die>\d+)"
     r"(?P<fun>!\d*|k[hl]\d*)?"
     r")"
+    r"(>(?P<min>\d+))?"
+    r"(<(?P<max>\d+))?"
     r"(x(?P<batch>\d+))?"
 )
 """Regex pattern for initial roll"""
@@ -22,15 +24,22 @@ addl_roll_regex = compile(
     r"(?P<num>\d*)"
     r"(d(?P<die>\d+)(?P<fun>!\d*|k[hl]\d*)?)?"
     r")"
+    r"(>(?P<min>\d+))?"
+    r"(<(?P<max>\d+))?"
     r"(x(?P<batch>\d+))?"
 )
 """Regex pattern for additional modifier rolls/constants"""
 
 
-def parse_segments(roll: str) -> list[list[RollSegment]]:
+class ParsedRoll(list[list[RollSegment]]):
+    max: int | None = None
+    min: int | None = None
+
+
+def parse_segments(roll: str) -> ParsedRoll:
     """Parse a roll formula string into a list of RollSegment objects."""
 
-    segments = []
+    batches = ParsedRoll()
 
     # strip all whitespace
     roll = roll.replace(" ", "")
@@ -44,12 +53,18 @@ def parse_segments(roll: str) -> list[list[RollSegment]]:
     mods = [r.groupdict() for r in addl_roll_regex.finditer(roll)]
 
     batch = int(first["batch"] or 1)
+    batches.max = int(first["max"]) if first["max"] else None
+    batches.min = int(first["min"]) if first["min"] else None
 
     for m in mods:
         if m["batch"]:
             batch = int(m["batch"])
 
-    batches = []
+        if m["max"]:
+            batches.max = int(m["max"])
+
+        if m["min"]:
+            batches.min = int(m["min"])
 
     for _ in range(batch):
         segments: list[RollSegment] = [

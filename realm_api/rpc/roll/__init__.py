@@ -121,7 +121,11 @@ async def roll_handler(formula: str) -> BatchResults:
 
         for segments in batches:
             results.results.append(
-                RollResults(results=[roll_segment(s) for s in segments])
+                RollResults(
+                    results=[roll_segment(s) for s in segments],
+                    min=batches.min,
+                    max=batches.max,
+                )
             )
     except Exception as ex:
         logger.warning(ex)
