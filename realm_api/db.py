@@ -4,13 +4,12 @@
 import os
 
 # 3rd party
-from sqlmodel import SQLModel
 from sqlalchemy.ext.asyncio import create_async_engine
+from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 # local
 from realm_api.logging import logger
-
 
 DB_URL = os.environ.get(
     "DB_URL", "postgresql+asyncpg://realm:realm@localhost/realm"
